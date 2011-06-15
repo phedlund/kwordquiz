@@ -21,8 +21,8 @@
 
 #include <QtGui/QPainter>
 
-#include <KLineEdit>
-
+#include <QLineEdit>
+#include <QDebug>
 #include "kwqtablemodel.h"
 
 KWQTableDelegate::KWQTableDelegate(QObject * parent) : QItemDelegate(parent)
@@ -32,7 +32,7 @@ KWQTableDelegate::KWQTableDelegate(QObject * parent) : QItemDelegate(parent)
 QWidget * KWQTableDelegate::createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const
 {
   Q_UNUSED(option);
-  KLineEdit *editor = new KLineEdit(parent);
+  QLineEdit *editor = new QLineEdit(parent);
   editor->setFrame(false);
   editor->setFont(index.data(Qt::FontRole).value<QFont>());
 
@@ -42,13 +42,13 @@ QWidget * KWQTableDelegate::createEditor(QWidget * parent, const QStyleOptionVie
 
 void KWQTableDelegate::setEditorData(QWidget * editor, const QModelIndex & index) const
 {
-  KLineEdit *lineEdit = static_cast<KLineEdit*>(editor);
+  QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
   lineEdit->setText(index.data(Qt::DisplayRole).toString());
 }
 
 void KWQTableDelegate::setModelData(QWidget * editor, QAbstractItemModel * model, const QModelIndex & index) const
 {
-  KLineEdit *lineEdit = static_cast<KLineEdit*>(editor);
+  QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
   model->setData(index, lineEdit->text());
 }
 
@@ -106,6 +106,7 @@ void KWQTableDelegate::drawDisplay(QPainter * painter, const QStyleOptionViewIte
     QFont font = painter->font();
     painter->setFont(option.font);
     QRect textRect = rect.adjusted(3, 0, -3, 0); // remove width padding
+    painter->setLayoutDirection(Qt::LayoutDirectionAuto);
     painter->drawText(textRect, option.displayAlignment | Qt::TextWordWrap, text);
     painter->setFont(font);
     painter->setPen(pen);
@@ -160,4 +161,4 @@ void KWQTableDelegate::paint(QPainter * painter, const QStyleOptionViewItem & op
   painter->restore();
 }
 
-#include "kwqtabledelegate.moc"
+//#include "kwqtabledelegate.moc"

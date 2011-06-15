@@ -19,7 +19,7 @@
 #include "kwqsortfiltermodel.h"
 #include "kwqtablemodel.h"
 
-#include <KRandomSequence>
+#include "krandomsequence.h"
 
 KWQSortFilterModel::KWQSortFilterModel(QObject *parent) : QSortFilterProxyModel(parent)
 {
@@ -75,4 +75,4 @@ void KWQSortFilterModel::shuffle()
     m_shuffle = false;
 }
 
-#include "kwqsortfiltermodel.moc"
+//#include "kwqsortfiltermodel.moc"

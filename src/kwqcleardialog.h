@@ -21,11 +21,12 @@
 #ifndef KWQCLEARDIALOG_H
 #define KWQCLEARDIALOG_H
 
-#include <KDE/KDialog>
+#include <QtGui/QDialog>
+
 
 #include "ui_cleardialogbase.h"
 
-class KWQClearDialog : public KDialog, private Ui::ClearDialogBase {
+class KWQClearDialog : public QDialog, private Ui::ClearDialogBase {
   Q_OBJECT
   public:
     explicit KWQClearDialog(QWidget *parent = 0);

@@ -22,11 +22,11 @@
 
 #include "prefs.h"
 
-KWQClearDialog::KWQClearDialog(QWidget* parent): KDialog(parent)
+KWQClearDialog::KWQClearDialog(QWidget* parent): QDialog(parent)
 {
-    setCaption(i18n("Clear Contents"));
+    setCaption(/*i18n*/("Clear Contents"));
     setButtons(Ok|Cancel);
-    setupUi(mainWidget());
+    setupUi(this/*mainWidget()*/);
 
     connect(clearButtonGroup, SIGNAL(changed(int )), this, SLOT(buttonGroupChanged(int)));
 
@@ -58,7 +58,7 @@ void KWQClearDialog::updateCheckBoxes()
 
 void KWQClearDialog::slotButtonClicked(int button)
 {
-    if (button == KDialog::Ok) {
+    if (button == QDialog::Ok) {
       Prefs::setClearAll(clearAllCheckBox->isChecked());
       Prefs::setClearText(clearTextCheckBox->isChecked());
       Prefs::setClearImageLink(clearImageCheckBox->isChecked());

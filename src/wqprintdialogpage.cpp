@@ -22,38 +22,38 @@
 #include <QtGui/QGridLayout>
 #include <QtGui/QSpacerItem>
 
-#include <KLocale>
-#include <KDialog>
+//#include <KLocale>
+//#include <KDialog>
 
 WQPrintDialogPage::WQPrintDialogPage(QWidget *parent) : QWidget(parent)
 {
-  setWindowTitle(i18n("Vocabulary Options"));
+  setWindowTitle(tr("Vocabulary Options"));
 
   QGridLayout * l = new QGridLayout(this);
-  l->setSpacing(KDialog::spacingHint());
-  l->setMargin(KDialog::marginHint());
+  l->setSpacing(6);
+  l->setMargin(6);
   QSpacerItem * s = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
   l->addItem(s, 1, 0, 1, 1);
 
-  g = new QGroupBox(i18n("Select Type of Printout"), this );
+  g = new QGroupBox(tr("Select Type of Printout"), this );
   QVBoxLayout * vboxLayout = new QVBoxLayout(g);
-  vboxLayout->setSpacing(KDialog::spacingHint());
-  vboxLayout->setMargin(KDialog::marginHint());
+  vboxLayout->setSpacing(6);
+  vboxLayout->setMargin(6);
 
   bg = new QButtonGroup(this);
 
-  QRadioButton *rb = new QRadioButton(i18n("Vocabulary &list"),g);
-  rb->setWhatsThis(i18n("Select to print the vocabulary as displayed in the editor"));
+  QRadioButton *rb = new QRadioButton(tr("Vocabulary &list"),g);
+  rb->setWhatsThis(tr("Select to print the vocabulary as displayed in the editor"));
   vboxLayout->addWidget(rb);
   bg->addButton(rb, Prefs::EnumPrintStyle::List);
 
-  rb = new QRadioButton(i18n("Vocabulary e&xam"),g);
-  rb->setWhatsThis(i18n("Select to print the vocabulary as a vocabulary exam"));
+  rb = new QRadioButton(tr("Vocabulary e&xam"),g);
+  rb->setWhatsThis(tr("Select to print the vocabulary as a vocabulary exam"));
   vboxLayout->addWidget(rb);
   bg->addButton(rb, Prefs::EnumPrintStyle::Exam);
 
-  rb = new QRadioButton(i18n("&Flashcards"),g);
-  rb->setWhatsThis(i18n("Select to print flashcards"));
+  rb = new QRadioButton(tr("&Flashcards"),g);
+  rb->setWhatsThis(tr("Select to print flashcards"));
   vboxLayout->addWidget(rb);
   bg->addButton(rb, Prefs::EnumPrintStyle::Flashcard);
 
@@ -70,4 +70,4 @@ void WQPrintDialogPage::setPrintStyle(int style)
   bg->button(style)->setChecked(true);
 }
 
-#include "wqprintdialogpage.moc"
+//#include "wqprintdialogpage.moc"

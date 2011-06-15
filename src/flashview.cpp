@@ -21,20 +21,22 @@
 #include "flashview.h"
 
 #include <QTimer>
+#include <QtCore/QDir>
 
-#include <KIconLoader>
-#include <KLocale>
-#include <KNotification>
+//#include <KIconLoader>
+//#include <KLocale>
+#include <Phonon/MediaObject>
 
 #include "kwqquizmodel.h"
 #include "kwqscorewidget.h"
 #include "prefs.h"
 
-FlashView::FlashView(QWidget *parent, KActionCollection *actionCollection) : KWQQuizView(parent, actionCollection)
+FlashView::FlashView(QWidget *parent/*, KActionCollection *actionCollection*/) : KWQQuizView(parent/*, actionCollection*/)
 {
   setupUi(this);
   m_timer = new QTimer(this);
   connect(m_timer, SIGNAL(timeout()), this, SLOT(slotTimer()));
+  connect(flashcard, SIGNAL(cardClicked()), this, SLOT(slotCheck()));
 }
 
 void FlashView::init()
@@ -43,15 +45,23 @@ void FlashView::init()
   score->setQuestionCount(m_quiz->questionCount());
   score->setAsPercent(Prefs::percent());
 
-  m_actionCollection->action("quiz_check")->setEnabled(true);
-  m_actionCollection->action("flash_know")->setEnabled(true);
-  m_actionCollection->action("flash_dont_know")->setEnabled(true);
-  m_actionCollection->action("quiz_repeat_errors")->setEnabled(false);
-  m_actionCollection->action("quiz_export_errors")->setEnabled(false);
-  m_actionCollection->action("quiz_audio_play")->setEnabled(false);
+  foreach(QAction * a, actions()) {
+    if (a->objectName() == "quizCheck")
+       a->setEnabled(true);
+    if (a->objectName() == "flashKnow")
+       a->setEnabled(true);
+    if (a->objectName() == "flashDontKnow")
+       a->setEnabled(true);
+    if (a->objectName() == "quizRepeatErrors")
+       a->setEnabled(false);
+    if (a->objectName() == "quizExportErrors")
+       a->setEnabled(false);
+    if (a->objectName() == "quizPlayAudio")
+       a->setEnabled(false);
+  }
 
   // reset last file
-  audioPlayFile(KUrl(), true);
+  audioPlayFile(QUrl(), true);
 
   connect(flashcard, SIGNAL(cardClicked()), this, SLOT(slotCheck()), Qt::UniqueConnection);
 
@@ -63,12 +73,18 @@ void FlashView::keepDiscardCard(bool keep)
 {
   if (!keep) {
     score->countIncrement(KWQScoreWidget::cdCorrect);
-    KNotification::event("QuizCorrect", i18n("Your answer was correct!"));
+    //qtport KNotification::event("QuizCorrect", i18n("Your answer was correct!"));
+    Phonon::MediaObject *notification = Phonon::createPlayer(Phonon::NotificationCategory,
+      Phonon::MediaSource(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("scrbar.wav")));
+    notification->play();
   }
   else {
     m_quiz->checkAnswer("");
     score->countIncrement(KWQScoreWidget::cdError);
-    KNotification::event("QuizError", i18n("Your answer was incorrect."));
+    //qtport KNotification::event("QuizError", i18n("Your answer was incorrect."));
+    Phonon::MediaObject *notification = Phonon::createPlayer(Phonon::NotificationCategory,
+      Phonon::MediaSource(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("cancel.wav")));
+    notification->play();
   }
 
   m_showFirst = true;
@@ -79,12 +95,20 @@ void FlashView::keepDiscardCard(bool keep)
   }
   else {
     m_quiz->finish();
-    m_actionCollection->action("quiz_check")->setEnabled(false);
-    m_actionCollection->action("flash_know")->setEnabled(false);
-    m_actionCollection->action("flash_dont_know")->setEnabled(false);
-    m_actionCollection->action("quiz_repeat_errors")->setEnabled(m_quiz->hasErrors());
-    m_actionCollection->action("quiz_export_errors")->setEnabled(m_quiz->hasErrors());
-    m_actionCollection->action("quiz_audio_play")->setEnabled(false);
+    foreach(QAction * a, actions()) {
+      if (a->objectName() == "quizCheck")
+         a->setEnabled(false);
+      if (a->objectName() == "flashKnow")
+         a->setEnabled(false);
+      if (a->objectName() == "flashDontKnow")
+         a->setEnabled(false);
+      if (a->objectName() == "quizRepeatErrors")
+         a->setEnabled(m_quiz->hasErrors());
+      if (a->objectName() == "quizExportErrors")
+         a->setEnabled(m_quiz->hasErrors());
+      if (a->objectName() == "quizPlayAudio")
+         a->setEnabled(false);
+    }
     disconnect(flashcard, SIGNAL(cardClicked()), 0, 0);
   }
 }
@@ -168,4 +192,4 @@ void FlashView::slotApplySettings( )
   score ->setAsPercent(Prefs::percent());
 }
 
-#include "flashview.moc"
+//#include "flashview.moc"

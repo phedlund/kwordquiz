@@ -23,7 +23,7 @@
 
 #include "ui_multipleviewbase.h"
 
-#include <KActionCollection>
+//#include <KActionCollection>
 #include "kwqquizview.h"
 
 class QActionGroup;
@@ -37,7 +37,7 @@ class MultipleView : public KWQQuizView, public Ui::MultipleViewBase
 {
 Q_OBJECT
 public:
-    MultipleView(QWidget *parent, KActionCollection *actionCollection);
+    MultipleView(QWidget *parent/*, KActionCollection *actionCollection*/);
     void init();
 
 public slots:

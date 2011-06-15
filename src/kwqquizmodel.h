@@ -71,8 +71,8 @@ public:
     QString langAnswer();
     QPixmap imageQuestion();
     QPixmap imageAnswer();
-    KUrl soundQuestion();
-    KUrl soundAnswer();
+    QUrl soundQuestion();
+    QUrl soundAnswer();
 
     QString kbAnswer();
 

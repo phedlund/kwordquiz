@@ -23,7 +23,7 @@
 
 #include "ui_flashviewbase.h"
 
-#include <KActionCollection>
+//#include <KActionCollection>
 #include "kwqquizview.h"
 
 class KWQQuizModel;
@@ -35,7 +35,7 @@ class FlashView : public KWQQuizView, public Ui::FlashViewBase
 {
 Q_OBJECT
 public:
-    FlashView(QWidget *parent, KActionCollection *actionCollection);
+    FlashView(QWidget *parent/*, KActionCollection *actionCollection*/);
 
     void init();
 

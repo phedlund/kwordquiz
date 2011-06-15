@@ -154,4 +154,4 @@ void KWQCardScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
     QGraphicsScene::mouseReleaseEvent(mouseEvent);
 }
 
-#include "kwqcardscene.moc"
+//#include "kwqcardscene.moc"

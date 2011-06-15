@@ -18,10 +18,12 @@
 #ifndef KWQCOMMANDS_H
 #define KWQCOMMANDS_H
 
+#include <QObject>
 #include <QHeaderView>
 #include <QUndoCommand>
+#include <QtCore/QUrl>
 
-#include <KLocale>
+//#include <KLocale>
 
 #include "kwqtableview.h"
 #include "kwqsortfiltermodel.h"
@@ -103,7 +105,7 @@ class KWQCommandFont : public KWQUndoCommand
 {
 public:
   KWQCommandFont(KWQTableView *view, const QFont &oldFont, const QFont &newFont) : KWQUndoCommand(view), m_oldFont(oldFont), m_newFont(newFont)
-    { setText(i18n("Font")); }
+    { setText(QObject::tr("Font")); }
   virtual void undo()
     { Prefs::setEditorFont(m_oldFont);
       view()->reset(); }
@@ -121,7 +123,7 @@ class KWQCommandEntry : public KWQUndoCommand
 public:
   KWQCommandEntry(KWQTableView *view, const QString oldText, const QString newText)
     : KWQUndoCommand(view), m_oldText(oldText), m_newText(newText) 
-      { setText(i18n("Entry")); }
+      { setText(QObject::tr("Entry")); }
 
   virtual void redo()
       { view()->model()->setData(oldCurrentIndex(), m_newText, Qt::EditRole);
@@ -200,26 +202,26 @@ private:
 class KWQCommandImage : public KWQUndoCommand
 {
 public:
-  KWQCommandImage(KWQTableView *view, const KUrl &);
+  KWQCommandImage(KWQTableView *view, const QUrl &);
   virtual void undo();
   virtual void redo();
 
 private:
-  KUrl m_oldUrl;
-  KUrl m_newUrl;
+  QUrl m_oldUrl;
+  QUrl m_newUrl;
 };
 
 
 class KWQCommandSound : public KWQUndoCommand
 {
 public:
-  KWQCommandSound(KWQTableView *view, const KUrl &);
+  KWQCommandSound(KWQTableView *view, const QUrl &);
   virtual void undo();
   virtual void redo();
 
 private:
-  KUrl m_oldUrl;
-  KUrl m_newUrl;
+  QUrl m_oldUrl;
+  QUrl m_newUrl;
 };
 
 #endif // KWQCOMMANDS_H

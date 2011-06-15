@@ -27,8 +27,8 @@
 #include <Phonon/AudioOutput>
 #include <Phonon/Global>
 
-#include <KActionCollection>
-#include <KUrl>
+//#include <KActionCollection>
+#include <QtCore/QUrl>
 
 class KWQQuizModel;
 
@@ -40,7 +40,7 @@ class KWQQuizView : public QWidget
 {
   Q_OBJECT
   public:
-    KWQQuizView(QWidget *parent, KActionCollection * actionCollection);
+    KWQQuizView(QWidget *parent/*, KActionCollection * actionCollection*/);
 
     void setQuiz(KWQQuizModel *quiz);
     virtual void init() = 0;
@@ -54,11 +54,11 @@ class KWQQuizView : public QWidget
 
   protected:
     KWQQuizModel *m_quiz;
-    KActionCollection *m_actionCollection;
+    //KActionCollection *m_actionCollection;
 
     void audioPlayAnswer();
     void audioPlayQuestion(); 
-    void audioPlayFile(const KUrl & soundFile, bool);
+    void audioPlayFile(const QUrl & soundFile, bool);
 
   private:
     class Phonon::MediaObject *m_player;

@@ -33,25 +33,28 @@
 #include <QtGui/QAbstractTextDocumentLayout>
 #include <QHeaderView>
 #include <QtDBus/QDBusInterface>
+#include <QtCore/QTextStream>
+#include <QtGui/QPrintPreviewDialog>
+#include <QtCore/QDir>
 
-#include <KLocale>
-#include <KGlobalSettings>
-#include <KNotification>
-#include <KDebug>
-#include <kdeprintdialog.h>
-#include <KPrintPreview>
-#include <KFileDialog>
+//#include <KLocale>
+//#include <KGlobalSettings>
+#include <Phonon/MediaObject>
+//#include <KDebug>
+//#include <kdeprintdialog.h>
+//#include <KPrintPreview>
+#include <QtGui/QFileDialog>
 
 #include "kwqtablemodel.h"
 #include "keduvocdocument.h"
-#include "kwordquiz.h"
+#include "wordquiz.h"
 #include "prefs.h"
 #include "kwqcommands.h"
-#include "kwqcleardialog.h"
+#include "wqcleardialog.h"
 
 //krazy:excludeall=qclasses
 
-KWQTableView::KWQTableView(KUndoStack *undoStack, QWidget *parent) : QTableView(parent), m_undoStack(undoStack)
+KWQTableView::KWQTableView(QUndoStack *undoStack, QWidget *parent) : QTableView(parent), m_undoStack(undoStack)
 {
   m_model = 0;
 
@@ -74,11 +77,11 @@ void KWQTableView::doPrint()
 {
   QPrinter printer;
 
-  WQPrintDialogPage * p = new WQPrintDialogPage(this);
-  p->setPrintStyle(Prefs::printStyle());
-  QPrintDialog *printDialog = KdePrint::createPrintDialog(&printer, QList<QWidget*>() << p, this);
+  //WQPrintDialogPage * p = new WQPrintDialogPage(this);
+  //p->setPrintStyle(Prefs::printStyle());
+  QPrintDialog *printDialog = new QPrintDialog(&printer, this); //KdePrint::createPrintDialog(&printer, QList<QWidget*>() << p, this);
   if (printDialog->exec() == QDialog::Accepted) {
-    Prefs::setPrintStyle(p->printStyle());
+    //Prefs::setPrintStyle(p->printStyle());
     QTextDocument td;
     createPages(&printer, &td, true);
   }
@@ -88,18 +91,25 @@ void KWQTableView::doPrint()
 void KWQTableView::doPrintPreview()
 {
   QPrinter printer;
-  KPrintPreview preview(&printer, this);
-  QTextDocument td;
-  createPages(&printer, &td, true);
+  QPrintPreviewDialog preview(&printer, this);
+  //QTextDocument td;
+  //createPages(&printer, &td);
+  connect(&preview, SIGNAL(paintRequested(QPrinter *)), this, SLOT(slotPreviewPaintRequested(QPrinter*)));
   preview.exec();
 }
 
-bool KWQTableView::doHtmlExport(const KUrl &url)
+void KWQTableView::slotPreviewPaintRequested(QPrinter *printer)
+{
+  QTextDocument td;
+  createPages(printer, &td, true);
+}
+
+bool KWQTableView::doHtmlExport(const QUrl &url)
 {
   bool success = false;
 
-  KUrl tmp(url);
-  QFile data(tmp.path());
+  QUrl tmp(url);
+  QFile data(tmp.toLocalFile());
   if (data.open(QFile::WriteOnly)) {
     QPrinter printer;
     QTextDocument td;
@@ -118,6 +128,7 @@ void KWQTableView::createPages(QPrinter *printer, QTextDocument *textDoc, bool s
 {
   printer->setFullPage(true);
   int myDpi = printer->logicalDpiY();
+  textDoc->setDefaultFont(QFont("Arial"));
 
   if (Prefs::printStyle() == Prefs::EnumPrintStyle::Flashcard) {
     printer->setOrientation(QPrinter::Landscape);
@@ -144,7 +155,7 @@ void KWQTableView::createPages(QPrinter *printer, QTextDocument *textDoc, bool s
     headerFormat.setAlignment(Qt::AlignLeft);
 
     QTextCharFormat headerCharFormat;
-    headerCharFormat.setFont(KGlobalSettings::generalFont());
+    //qtport headerCharFormat.setFont(KGlobalSettings::generalFont());
 
     QTextBlockFormat cellFormat;
     cellFormat.setAlignment(Qt::AlignCenter);
@@ -184,10 +195,10 @@ void KWQTableView::createPages(QPrinter *printer, QTextDocument *textDoc, bool s
   }
   else
   {
-    textDoc->rootFrame()->lastCursorPosition().insertText(KGlobal::caption());
+    textDoc->rootFrame()->lastCursorPosition().insertText("WordQuiz" /*KGlobal::caption()*/);
 
     if (Prefs::printStyle() == Prefs::EnumPrintStyle::Exam)
-      textDoc->rootFrame()->lastCursorPosition().insertText(' ' + i18n("Name:_____________________________ Date:__________"));
+      textDoc->rootFrame()->lastCursorPosition().insertText(' ' + tr("Name:_____________________________ Date:__________"));
 
     QTextTable* table;
     if (Prefs::printStyle() == Prefs::EnumPrintStyle::Exam)
@@ -217,7 +228,7 @@ void KWQTableView::createPages(QPrinter *printer, QTextDocument *textDoc, bool s
     headerFormat.setAlignment(Qt::AlignHCenter);
 
     QTextCharFormat headerCharFormat;
-    headerCharFormat.setFont(KGlobalSettings::generalFont());
+    //qtport headerCharFormat.setFont(KGlobalSettings::generalFont());
 
     QTextCursor cellCursor;
     cellCursor = table->cellAt(0, 1).firstCursorPosition();
@@ -234,7 +245,7 @@ void KWQTableView::createPages(QPrinter *printer, QTextDocument *textDoc, bool s
       cellCursor = table->cellAt(0, 3).firstCursorPosition();
       cellCursor.mergeBlockFormat(headerFormat);
       cellCursor.mergeCharFormat(headerCharFormat);
-      cellCursor.insertText(i18n("Score"));
+      cellCursor.insertText(tr("Score"));
     }
 
     headerCharFormat = cellCursor.charFormat();
@@ -317,8 +328,8 @@ void KWQTableView::doEditClear()
   else
   {
     if (selectionHasMoreThanText()) {
-      QPointer<KWQClearDialog> clearDialog = new KWQClearDialog(this);
-      if (clearDialog->exec() == KDialog::Rejected) {
+      QPointer<WQClearDialog> clearDialog = new WQClearDialog(this);
+      if (clearDialog->exec() == QDialog::Rejected) {
         delete clearDialog;
         return;
       }
@@ -652,8 +663,12 @@ void KWQTableView::commitData(QWidget * editor)
   }
   if (!newText.isEmpty()) {
     if (Prefs::enableBlanks())
-      if (!m_model->sourceModel()->checkBlanksSyntax(newText) /*checkForBlank(newText, true)*/)
-        KNotification::event("SyntaxError", i18n("There is an error with the Fill-in-the-blank brackets"));
+        if (!m_model->sourceModel()->checkBlanksSyntax(newText) /*checkForBlank(newText, true)*/) {
+        //KNotification::event("SyntaxError", i18n("There is an error with the Fill-in-the-blank brackets"));
+        Phonon::MediaObject *notification = Phonon::createPlayer(Phonon::NotificationCategory,
+                    Phonon::MediaSource(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("alert.wav")));
+        notification->play();
+    }
   }
   QTableView::commitData(editor);
 }
@@ -713,9 +728,9 @@ void KWQTableView::slotHeaderClicked(int column)
 
 void KWQTableView::doVocabImage()
 {
-  KUrl currentUrl = model()->data(currentIndex(), KWQTableModel::ImageRole).toString();
+  QString currentUrl = model()->data(currentIndex(), KWQTableModel::ImageRole).toString();
 
-  KUrl imageUrl = KFileDialog::getImageOpenUrl(currentUrl, this, i18n("Select Image"));
+  QString imageUrl = QFileDialog::getOpenFileName(this, tr("Select Image"), currentUrl);
   if (!imageUrl.isEmpty()) {
     KWQCommandImage *kwqc = new KWQCommandImage(this, imageUrl);
     m_undoStack->push(kwqc);
@@ -725,9 +740,9 @@ void KWQTableView::doVocabImage()
 
 void KWQTableView::doVocabSound()
 {
-  KUrl currentUrl = model()->data(currentIndex(), KWQTableModel::SoundRole).toString();
+  QString currentUrl = model()->data(currentIndex(), KWQTableModel::SoundRole).toString();
 
-  KUrl soundUrl = KFileDialog::getOpenUrl(currentUrl, i18n("*|All Files"), this, i18n("Select Sound"));
+  QString soundUrl  = QFileDialog::getOpenFileName(this, tr("Select Sound"), currentUrl);
   if (!soundUrl.isEmpty()) {
     KWQCommandSound *kwqc = new KWQCommandSound(this, soundUrl);
     m_undoStack->push(kwqc);
@@ -748,12 +763,13 @@ void KWQTableView::updateKeyboardLayout()
     QString layout;
     layout.clear();
     layout = model()->headerData(currentIndex().column(), Qt::Horizontal, KWQTableModel::KeyboardLayoutRole).toString();
-
+#ifdef Q_WS_X11
     if (!layout.isEmpty()) {
         QDBusInterface kxkb("org.kde.keyboard", "/Layouts", "org.kde.KeyboardLayouts");
         if (kxkb.isValid())
             kxkb.call("setLayout", layout);
     }
+#endif
 }
 
 bool KWQTableView::selectionHasMoreThanText()
@@ -770,4 +786,4 @@ bool KWQTableView::selectionHasMoreThanText()
   return result;
 }
 
-#include "kwqtableview.moc"
+//#include "kwqtableview.moc"

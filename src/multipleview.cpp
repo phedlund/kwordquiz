@@ -19,19 +19,20 @@
 */
 
 #include "multipleview.h"
+#include <QtCore/QDir>
 
 #include <QtGui/QButtonGroup>
 
-#include <KIconLoader>
-#include <KLocale>
-#include <KNotification>
-#include <KActionCollection>
+//#include <KIconLoader>
+//#include <KLocale>
+#include <Phonon/MediaObject>
+//#include <KActionCollection>
 
 #include "kwqquizmodel.h"
 #include "kwqscorewidget.h"
 #include "prefs.h"
 
-MultipleView::MultipleView(QWidget *parent, KActionCollection *actionCollection) : KWQQuizView(parent, actionCollection)
+MultipleView::MultipleView(QWidget *parent/*, KActionCollection *actionCollection*/) : KWQQuizView(parent/*, actionCollection*/)
 {
   setupUi(this);
   m_choicesButtons = new QButtonGroup(this);
@@ -41,12 +42,20 @@ MultipleView::MultipleView(QWidget *parent, KActionCollection *actionCollection)
   connect(m_choicesButtons, SIGNAL(buttonClicked(int )), this, SLOT(slotChoiceClicked(int )));
   m_choicesActions = new QActionGroup(this);
   connect(m_choicesActions, SIGNAL(triggered(QAction *)), this, SLOT(slotChoiceActionTriggered(QAction *)));
-  m_choicesActions->addAction(m_actionCollection->action("quiz_Opt1"));
-  m_choicesActions->addAction(m_actionCollection->action("quiz_Opt2"));
-  m_choicesActions->addAction(m_actionCollection->action("quiz_Opt3"));
-  m_actionCollection->action("quiz_Opt1")->setData(1);
-  m_actionCollection->action("quiz_Opt2")->setData(2);
-  m_actionCollection->action("quiz_Opt3")->setData(3);
+  foreach(QAction * a, actions()) {
+    if (a->objectName() == "quiz_Opt1") {
+      m_choicesActions->addAction(a);
+      a->setData(1);
+    }
+    if (a->objectName() == "quiz_Opt2") {
+      m_choicesActions->addAction(a);
+      a->setData(2);
+    }
+    if (a->objectName() == "quiz_Opt3") {
+      m_choicesActions->addAction(a);
+      a->setData(3);
+    }
+  }
 }
 
 void MultipleView::init()
@@ -80,20 +89,28 @@ void MultipleView::init()
   picYourAnswer->clear();
   picCorrectAnswer->clear();
 
-  m_actionCollection->action("quiz_check")->setEnabled(true);
-  m_actionCollection->action("quiz_repeat_errors")->setEnabled(false);
-  m_actionCollection->action("quiz_export_errors")->setEnabled(false);
-  m_actionCollection->action("quiz_audio_play")->setEnabled(false);
-  m_actionCollection->action("quiz_Opt1")->setEnabled(true);
-  m_actionCollection->action("quiz_Opt2")->setEnabled(true);
-  m_actionCollection->action("quiz_Opt3")->setEnabled(true);
-
+  foreach(QAction * a, actions()) {
+    if (a->objectName() == "quizCheck")
+       a->setEnabled(true);
+    if (a->objectName() == "quizRepeatErrors")
+       a->setEnabled(false);
+    if (a->objectName() == "quizExportErrors")
+       a->setEnabled(false);
+    if (a->objectName() == "quiz_Opt1")
+       a->setEnabled(true);
+    if (a->objectName() == "quiz_Opt2")
+       a->setEnabled(true);
+    if (a->objectName() == "quiz_Opt3")
+       a->setEnabled(true);
+    if (a->objectName() == "quizPlayAudio")
+       a->setEnabled(false);
+  }
   showQuestion();
 }
 
 void MultipleView::slotCheck()
 {
-  if (m_actionCollection->action("quiz_check")->isEnabled())
+  if (actions()[0]->isEnabled()/*quizCheck*/)
   {
     if (m_choicesButtons->checkedId() == -1)
         return;
@@ -104,28 +121,34 @@ void MultipleView::slotCheck()
 
     if (fIsCorrect)
     {
-      picYourAnswer->setPixmap(KIconLoader::global()->loadIcon("answer-correct", KIconLoader::Panel));
+      picYourAnswer->setPixmap(QPixmap(":/kwordquiz/pics/ox32-action-answer-correct.png"));
       lblCorrectHeader->clear();
       picCorrectAnswer->clear();
       lblCorrect->clear();
       score->countIncrement(KWQScoreWidget::cdCorrect);
-      KNotification::event("QuizCorrect", i18n("Your answer was correct!"));
+      //qtport KNotification::event("QuizCorrect", i18n("Your answer was correct!"));
+      Phonon::MediaObject *notification = Phonon::createPlayer(Phonon::NotificationCategory,
+        Phonon::MediaSource(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("scrbar.wav")));
+      notification->play();
     }
     else
     {
-      picYourAnswer->setPixmap(KIconLoader::global()->loadIcon("error", KIconLoader::Panel));
+      picYourAnswer->setPixmap(QPixmap(":/kwordquiz/pics/ox32-action-error.png"));
       lblCorrect->setText(m_quiz->answer());
-      picCorrectAnswer->setPixmap(KIconLoader::global()->loadIcon("answer-correct", KIconLoader::Panel));
-      lblCorrectHeader->setText(i18n("Correct Answer"));
+      picCorrectAnswer->setPixmap(QPixmap(":/kwordquiz/pics/ox32-action-answer-correct.png"));
+      lblCorrectHeader->setText(tr("Correct Answer"));
       score->countIncrement(KWQScoreWidget::cdError);
-      KNotification::event("QuizError", i18n("Your answer was incorrect."));
+      //qtport KNotification::event("QuizError", i18n("Your answer was incorrect."));
+      Phonon::MediaObject *notification = Phonon::createPlayer(Phonon::NotificationCategory,
+        Phonon::MediaSource(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("cancel.wav")));
+      notification->play();
     }
 
-    lblPreviousQuestionHeader->setText(i18n("Previous Question"));
+    lblPreviousQuestionHeader->setText(tr("Previous Question"));
     lblPreviousQuestion->setText(m_quiz->question());
-    picPrevious->setPixmap(KIconLoader::global()->loadIcon("question", KIconLoader::Panel));
+    picPrevious->setPixmap(QPixmap(":/kwordquiz/pics/ox32-action-question.png"));
 
-    lblYourAnswerHeader->setText(i18n("Your Answer"));
+    lblYourAnswerHeader->setText(tr("Your Answer"));
     lblYourAnswer->setText(m_quiz->yourAnswer(ans));
 
     m_quiz->toNext();
@@ -136,21 +159,30 @@ void MultipleView::slotCheck()
     else
     {
       m_quiz->finish();
-      m_actionCollection->action("quiz_check")->setEnabled(false);
-      m_actionCollection->action("quiz_Opt1")->setEnabled(false);
-      m_actionCollection->action("quiz_Opt2")->setEnabled(false);
-      m_actionCollection->action("quiz_Opt3")->setEnabled(false);
-      m_actionCollection->action("quiz_repeat_errors")->setEnabled(m_quiz->hasErrors());
-      m_actionCollection->action("quiz_export_errors")->setEnabled(m_quiz->hasErrors());
-      m_actionCollection->action("quiz_audio_play")->setEnabled(false);
+      foreach(QAction * a, actions()) {
+        if (a->objectName() == "quizCheck")
+          a->setEnabled(false);
+        if (a->objectName() == "quizRepeatErrors")
+          a->setEnabled(m_quiz->hasErrors());
+        if (a->objectName() == "quizExportErrors")
+          a->setEnabled(m_quiz->hasErrors());
+        if (a->objectName() == "quiz_Opt1")
+           a->setEnabled(false);
+        if (a->objectName() == "quiz_Opt2")
+           a->setEnabled(false);
+        if (a->objectName() == "quiz_Opt3")
+           a->setEnabled(false);
+        if (a->objectName() == "quizPlayAudio")
+           a->setEnabled(false);
+      }
 
-      lblQuestionLanguage->setText(i18n("Summary"));
+      lblQuestionLanguage->setText(tr("Summary"));
       lblQuestion->clear();
       lblAnswerLanguage->clear();
       opt1->hide();
       opt2->hide();
       opt3->hide();
-      picQuestion->setPixmap(KIconLoader::global()->loadIcon("kwordquiz", KIconLoader::Panel));
+      picQuestion->setPixmap(QPixmap(":/kwordquiz/icons/hi32-app-kwordquiz.png"));
       picAnswer->clear();
     }
   }
@@ -173,18 +205,24 @@ void MultipleView::slotChoiceClicked(int choice)
  */
 void MultipleView::showQuestion()
 {
-  lblQuestionLanguage->setText(m_quiz ->langQuestion());
-  lblQuestion->setText(m_quiz ->question());
+  lblQuestionLanguage->setText(m_quiz->langQuestion());
+  lblQuestion->setText(m_quiz->question());
 
-  picQuestion->setPixmap(KIconLoader::global()->loadIcon(m_quiz->quizIcon(KWQQuizModel::IconLeftCol), KIconLoader::Panel));
+  picQuestion->setPixmap(QPixmap(QString(":/kwordquiz/pics/ox32-action-%1.png").arg(m_quiz->quizIcon(KWQQuizModel::IconLeftCol))));
 
-  lblAnswerLanguage->setText(m_quiz ->langAnswer());
+  lblAnswerLanguage->setText(m_quiz->langAnswer());
 
   m_choices = m_quiz->multiOptions();
 
+#ifdef Q_WS_MAC //mnemonics are not used on the mac
+  opt1->setText(m_choices[0]);
+  opt2->setText(m_choices[1]);
+  opt3->setText(m_choices[2]);
+#else
   opt1->setText("&1 " + m_choices[0]);
   opt2->setText("&2 " + m_choices[1]);
   opt3->setText("&3 " + m_choices[2]);
+#endif
 
   m_choicesButtons->setExclusive(false);
   opt1->setChecked(false);
@@ -192,7 +230,7 @@ void MultipleView::showQuestion()
   opt3->setChecked(false);
   m_choicesButtons->setExclusive(true);
   setFocus();
-  picAnswer->setPixmap(KIconLoader::global()->loadIcon(m_quiz->quizIcon(KWQQuizModel::IconRightCol), KIconLoader::Panel));
+  picAnswer->setPixmap(QPixmap(QString(":/kwordquiz/pics/ox32-action-%1.png").arg(m_quiz->quizIcon(KWQQuizModel::IconRightCol))));
 }
 
 void MultipleView::slotApplySettings()
@@ -200,4 +238,4 @@ void MultipleView::slotApplySettings()
   score->setAsPercent(Prefs::percent());
 }
 
-#include "multipleview.moc"
+//#include "multipleview.moc"

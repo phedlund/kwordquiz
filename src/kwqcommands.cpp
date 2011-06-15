@@ -82,7 +82,7 @@ void KWQUndoCommand::undo()
 
 KWQCommandClear::KWQCommandClear(KWQTableView * view) : KWQUndoCommand(view)
 {
-  setText(i18nc("@item:inmenu undo clear", "Clear"));
+  setText(QObject::tr(/*"@item:inmenu undo clear",*/ "Clear"));
 }
 
 
@@ -104,7 +104,7 @@ void KWQCommandClear::redo()
 
 KWQCommandCut::KWQCommandCut(KWQTableView * view) : KWQCommandClear(view)
 {
-  setText(i18nc("@item:inmenu undo cut", "Cut"));
+  setText(QObject::tr(/*"@item:inmenu undo cut",*/ "Cut"));
 }
 
 
@@ -117,7 +117,7 @@ void KWQCommandCut::redo()
 
 KWQCommandPaste::KWQCommandPaste(KWQTableView * view) : KWQUndoCommand(view)
 {
-  setText(i18nc("@item:inmenu undo paste", "Paste"));
+  setText(QObject::tr(/*"@item:inmenu undo paste",*/ "Paste"));
   m_rowCount = view->model()->rowCount();
 }
 
@@ -214,7 +214,7 @@ KWQCommandSort::KWQCommandSort(QTableView * view, int column)
 {
   m_view = view;
   m_column = column;
-  setText(i18nc("@item:inmenu undo sort", "Sort"));
+  setText(QObject::tr(/*"@item:inmenu undo sort",*/ "Sort"));
 }
 
 
@@ -241,7 +241,7 @@ void KWQCommandSort::redo()
 KWQCommandShuffle::KWQCommandShuffle(QTableView * view, int column) : KWQCommandSort(view, column)
 {
   m_view = view;
-  setText(i18nc("@item:inmenu undo shuffle", "Shuffle"));
+  setText(QObject::tr(/*"@item:inmenu undo shuffle",*/ "Shuffle"));
 }
 
 void KWQCommandShuffle::undo()
@@ -261,7 +261,7 @@ void KWQCommandShuffle::redo()
 
 KWQCommandInsert::KWQCommandInsert(KWQTableView * view) : KWQUndoCommand(view)
 {
-  setText(i18nc("@item:inmenu undo insert", "Insert"));
+  setText(QObject::tr(/*"@item:inmenu undo insert",*/ "Insert"));
 }
 
 void KWQCommandInsert::undo()
@@ -293,7 +293,7 @@ void KWQCommandInsert::redo()
 
 KWQCommandDelete::KWQCommandDelete(KWQTableView * view) : KWQUndoCommand(view)
 {
-  setText(i18nc("@item:inmenu undo delete", "Delete"));
+  setText(QObject::tr(/*"@item:inmenu undo delete",*/ "Delete"));
 }
 
 
@@ -342,7 +342,7 @@ void KWQCommandDelete::redo()
 
 KWQCommandUnmarkBlank::KWQCommandUnmarkBlank(KWQTableView * view) : KWQUndoCommand(view)
 {
-  setText(i18nc("@item:inmenu undo unmark blank", "Unmark Blank"));
+  setText(QObject::tr(/*"@item:inmenu undo unmark blank",*/ "Unmark Blank"));
 }
 
 
@@ -364,7 +364,7 @@ void KWQCommandUnmarkBlank::redo()
 
 KWQCommandIdentifiers::KWQCommandIdentifiers(KWQTableView * view, const ColumnDataList &newColumnData) : KWQUndoCommand(view)
 {
-  setText(i18nc("@item:inmenu undo column titles", "Column Settings"));
+  setText(QObject::tr(/*"@item:inmenu undo column titles",*/ "Column Settings"));
   m_oldColumnData.clear();
   ColumnData columnData;
   columnData.identifier = view->model()->headerData(0, Qt::Horizontal, Qt::DisplayRole).toString();
@@ -396,6 +396,7 @@ void KWQCommandIdentifiers::undo()
 
 void KWQCommandIdentifiers::redo()
 {
+
   view()->model()->setHeaderData(0, Qt::Horizontal, m_newColumnData[0].identifier, Qt::EditRole);
   view()->model()->setHeaderData(1, Qt::Horizontal, m_newColumnData[1].identifier, Qt::EditRole);
 
@@ -407,9 +408,9 @@ void KWQCommandIdentifiers::redo()
 }
 
 
-KWQCommandImage::KWQCommandImage(KWQTableView *view, const KUrl &newUrl) : KWQUndoCommand(view), m_newUrl(newUrl)
+KWQCommandImage::KWQCommandImage(KWQTableView *view, const QUrl &newUrl) : KWQUndoCommand(view), m_newUrl(newUrl)
 {
-  setText(i18nc("@item:inmenu undo link image", "Link Image"));
+  setText(/*i18nc*/(/*"@item:inmenu undo link image",*/ "Link Image"));
   m_oldUrl = view->model()->data(oldCurrentIndex(), KWQTableModel::ImageRole).toString();
 }
 
@@ -426,9 +427,9 @@ void KWQCommandImage::redo()
 }
 
 
-KWQCommandSound::KWQCommandSound(KWQTableView *view, const KUrl &newUrl) : KWQUndoCommand(view), m_newUrl(newUrl)
+KWQCommandSound::KWQCommandSound(KWQTableView *view, const QUrl &newUrl) : KWQUndoCommand(view), m_newUrl(newUrl)
 {
-  setText(i18nc("@item:inmenu undo link sound", "Link Sound"));
+  setText(/*i18nc*/(/*"@item:inmenu undo link sound", */"Link Sound"));
   m_oldUrl = view->model()->data(oldCurrentIndex(), KWQTableModel::SoundRole).toString();
 }
 

@@ -18,9 +18,11 @@
  ***************************************************************************/
 
 #include "kwqtablemodel.h"
-
-#include <KLocale>
-#include <KIcon>
+#include <QFont>
+#include <QVector>
+#include <QSize>
+#include <QDebug>
+//#include <klocale.h>
 
 #include "prefs.h"
 #include "documentsettings.h"
@@ -29,7 +31,7 @@
 KWQTableModel::KWQTableModel(QObject * parent) : QAbstractTableModel(parent)
 {
   m_doc = 0;
-  m_decorationCache = new KPixmapCache("kwordquiz");
+  m_decorationCache = new QPixmapCache(/*"kwordquiz"*/);
 }
 
 KWQTableModel::~KWQTableModel()
@@ -56,6 +58,7 @@ QVariant KWQTableModel::data(const QModelIndex & index, int role) const
 
   QPixmap ip;
   QString image;
+  QUrl tempUrl;
 
   switch (role) {
     case Qt::FontRole:
@@ -65,20 +68,46 @@ QVariant KWQTableModel::data(const QModelIndex & index, int role) const
       return m_doc->lesson()->entries(KEduVocLesson::Recursive).value(index.row())->translation(index.column())->text();
 
     case Qt::DecorationRole:
-      image = m_doc->lesson()->entries(KEduVocLesson::Recursive).value(index.row())->translation(index.column())->imageUrl().toLocalFile();
-      if (!image.isEmpty()) {
-        if (!m_decorationCache->find(image, ip)) {
-          ip = QPixmap(image).scaled(QSize(22, 22), Qt::KeepAspectRatio);
-          m_decorationCache->insert(image, ip);
-        }
+      tempUrl = m_doc->lesson()->entries(KEduVocLesson::Recursive).value(index.row())->translation(index.column())->imageUrl();
+
+      if (!tempUrl.isEmpty()) {
+#ifdef Q_WS_WIN
+          image = m_doc->url().resolved(tempUrl).toString();
+#else
+          image = m_doc->url().resolved(tempUrl).toLocalFile();
+#endif
+          if (!image.isEmpty()) {
+            if (!m_decorationCache->find(image, &ip)) {
+              ip = QPixmap(image).scaled(QSize(22, 22), Qt::KeepAspectRatio);
+              m_decorationCache->insert(image, ip);
+            }
+          }
+          return ip;
       }
-      return ip;
+      else
+        return QVariant();
 
     case KWQTableModel::ImageRole:
-      return m_doc->lesson()->entries(KEduVocLesson::Recursive).value(index.row())->translation(index.column())->imageUrl().toLocalFile();
+      tempUrl = m_doc->lesson()->entries(KEduVocLesson::Recursive).value(index.row())->translation(index.column())->imageUrl();
+      if (!tempUrl.isEmpty())
+#ifdef Q_WS_WIN
+          return m_doc->url().resolved(tempUrl).toString();
+#else
+          return m_doc->url().resolved(tempUrl).toLocalFile();
+#endif
+      else
+        return QVariant();
 
     case KWQTableModel::SoundRole:
-      return m_doc->lesson()->entries(KEduVocLesson::Recursive).value(index.row())->translation(index.column())->soundUrl().toLocalFile();
+      tempUrl = m_doc->lesson()->entries(KEduVocLesson::Recursive).value(index.row())->translation(index.column())->soundUrl();
+      if (!tempUrl.isEmpty())
+#ifdef Q_WS_WIN
+          return m_doc->url().resolved(tempUrl).toString();
+#else
+          return m_doc->url().resolved(tempUrl).toLocalFile();
+#endif
+      else
+        return QVariant();
 
     default:
       return QVariant();
@@ -97,13 +126,13 @@ QVariant KWQTableModel::headerData(int section, Qt::Orientation orientation, int
     }
 
     if (role == Qt::SizeHintRole) {
-      DocumentSettings documentSettings(m_doc->url().url());
+      DocumentSettings documentSettings(m_doc->url().toLocalFile());
       documentSettings.readConfig();
       return QSize(documentSettings.sizeHintColumn(section), 25);
     }
 
     if (role == KWQTableModel::KeyboardLayoutRole) {
-      DocumentSettings documentSettings(m_doc->url().url());
+      DocumentSettings documentSettings(m_doc->url().toLocalFile());
       documentSettings.readConfig();
       return documentSettings.keyboardLayoutColumn(section);
     }
@@ -156,13 +185,13 @@ bool KWQTableModel::setHeaderData(int section, Qt::Orientation orientation, cons
     }
 
     if (role == Qt::SizeHintRole) {
-      DocumentSettings documentSettings(m_doc->url().url());
+      DocumentSettings documentSettings(m_doc->url().toLocalFile());
       documentSettings.setSizeHintColumn(section, qvariant_cast<QSize>(value).width());
       documentSettings.writeConfig();
     }
 
     if (role == KWQTableModel::KeyboardLayoutRole) {
-      DocumentSettings documentSettings(m_doc->url().url());
+      DocumentSettings documentSettings(m_doc->url().toLocalFile());
       documentSettings.setKeyboardLayoutColumn(section, value.toString());
       documentSettings.writeConfig();
     }
@@ -220,7 +249,7 @@ void KWQTableModel::setDocument(KEduVocDocument * doc)
 
 bool KWQTableModel::isEmpty()
 {
-  if (m_doc->url().fileName() == i18n("Untitled")){
+  if (m_doc->url().toString() == tr("Untitled")){
     int rc = rowCount(QModelIndex());
     for (int i = 0; i < rc; i++)
       if (!data(index(i, 0), Qt::DisplayRole).toString().isEmpty() || !data(index(i, 1), Qt::DisplayRole).toString().isEmpty())
@@ -309,4 +338,4 @@ KEduVocLesson * KWQTableModel::currentLesson(int row)
   return m_doc->lesson();
 }
 
-#include "kwqtablemodel.moc"
+//#include "kwqtablemodel.moc"

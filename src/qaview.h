@@ -23,7 +23,7 @@
 
 #include "ui_qaviewbase.h"
 
-#include <KActionCollection>
+//#include <KActionCollection>
 #include <Phonon/MediaObject>
 #include <Phonon/Path>
 #include <Phonon/AudioOutput>
@@ -39,7 +39,7 @@ class QAView : public KWQQuizView, public Ui::QAViewBase
 {
 Q_OBJECT
 public:
-    QAView(QWidget *parent, KActionCollection * actionCollection);
+    QAView(QWidget *parent/*, KActionCollection * actionCollection*/);
 
     void init();
 

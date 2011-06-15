@@ -21,11 +21,12 @@
 #include "qaview.h"
 
 #include <QtDBus/QDBusInterface>
+#include <QtCore/QDir>
 
-#include <KIconLoader>
-#include <KLocale>
-#include <KNotification>
-#include <KUrl>
+//#include <KIconLoader>
+//#include <KLocale>
+#include <Phonon/MediaObject>
+#include <QtCore/QUrl>
 
 #include "prefs.h"
 #include "kwqquizmodel.h"
@@ -66,7 +67,7 @@ QString highlightError(const QString & c, const QString & e)
   return result;
 }
 
-QAView::QAView(QWidget *parent, KActionCollection * actionCollection) : KWQQuizView(parent, actionCollection)
+QAView::QAView(QWidget *parent/*, KActionCollection * actionCollection*/) : KWQQuizView(parent/*, actionCollection*/)
 {
   setupUi(this);
 
@@ -101,15 +102,20 @@ void QAView::init()
   picYourAnswer->clear();
   picCorrectAnswer->clear();
 
-  m_actionCollection->action("quiz_check")->setEnabled(true);
-  m_actionCollection->action("qa_mark_last_correct")->setEnabled(false);
-  m_actionCollection->action("qa_hint")->setEnabled(true);
-  m_actionCollection->action("quiz_repeat_errors")->setEnabled(false);
-  m_actionCollection->action("quiz_export_errors")->setEnabled(false);
-  m_actionCollection->action("quiz_audio_play")->setEnabled(false);
-
-  // reset last file
-  audioPlayFile(KUrl(), true);
+  foreach(QAction * a, actions()) {
+    if (a->objectName() == "quizCheck")
+       a->setEnabled(true);
+    if (a->objectName() == "qaHint")
+       a->setEnabled(true);
+    if (a->objectName() == "quizRepeatErrors")
+       a->setEnabled(false);
+    if (a->objectName() == "quizExportErrors")
+       a->setEnabled(false);
+    if (a->objectName() == "quizPlayAudio")
+       a->setEnabled(false);
+    if (a->objectName() == "qaMarkLastCorrect")
+       a->setEnabled(false);
+  }
 
   showQuestion();
   txtAnswer->show();
@@ -118,7 +124,7 @@ void QAView::init()
 
 void QAView::slotCheck()
 {
-  if (m_actionCollection->action("quiz_check")->isEnabled())
+  if (actions()[0]->isEnabled()/*quizCheck*/)
   {
     bool fIsCorrect;
 
@@ -137,35 +143,47 @@ void QAView::slotCheck()
 
     if (fIsCorrect)
     {
-      picYourAnswer->setPixmap(KIconLoader::global()->loadIcon("answer-correct", KIconLoader::Panel));
+      picYourAnswer->setPixmap(QPixmap(":/kwordquiz/pics/ox32-action-answer-correct.png"));
       lblYourAnswer->setText(m_quiz->yourAnswer(txtAnswer->text()));
       lblCorrectHeader->clear();
       picCorrectAnswer->clear();
       lblCorrect->clear();
       score->countIncrement(KWQScoreWidget::cdCorrect);
-      KNotification::event("QuizCorrect", i18n("Your answer was correct!"));
-      m_actionCollection->action("qa_mark_last_correct")->setEnabled(false);
+      //qtport KNotification::event("QuizCorrect", i18n("Your answer was correct!"));
+      Phonon::MediaObject *notification = Phonon::createPlayer(Phonon::NotificationCategory,
+        Phonon::MediaSource(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("scrbar.wav")));
+      notification->play();
+      foreach(QAction * a, actions()) {
+        if (a->objectName() == "qaMarkLastCorrect")
+           a->setEnabled(false);
+      }
     }
     else
     {
-      picYourAnswer->setPixmap(KIconLoader::global()->loadIcon("error", KIconLoader::Panel));
+      picYourAnswer->setPixmap(QPixmap(":/kwordquiz/pics/ox32-action-error.png"));
       lblYourAnswer->setText(highlightError(m_quiz->answer(), m_quiz->yourAnswer(txtAnswer->text())));
       lblCorrect->setText(m_quiz->answer());
-      picCorrectAnswer->setPixmap(KIconLoader::global()->loadIcon("answer-correct", KIconLoader::Panel));
-      lblCorrectHeader->setText(i18n("Correct Answer"));
+      picCorrectAnswer->setPixmap(QPixmap(":/kwordquiz/pics/ox32-action-answer-correct.png"));
+      lblCorrectHeader->setText(tr("Correct Answer"));
       score->countIncrement(KWQScoreWidget::cdError);
-      KNotification::event("QuizError", i18n("Your answer was incorrect."));
-      m_actionCollection->action("qa_mark_last_correct")->setEnabled(true);
+      //qtport KNotification::event("QuizError", i18n("Your answer was incorrect."));
+      Phonon::MediaObject *notification = Phonon::createPlayer(Phonon::NotificationCategory,
+        Phonon::MediaSource(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("cancel.wav")));
+      notification->play();
+      foreach(QAction * a, actions()) {
+        if (a->objectName() == "qaMarkLastCorrect")
+           a->setEnabled(true);
+      }
     }
 
+    lblPreviousQuestionHeader->setText(tr("Previous Question"));
     audioPlayAnswer();
 
-    lblPreviousQuestionHeader->setText(i18n("Previous Question"));
     lblPreviousQuestion->setText(m_quiz->question());
-    //lblPreviousQuestion->setFont(m_quiz->fontQuestion(m_question));
-    picPrevious->setPixmap(KIconLoader::global()->loadIcon("question", KIconLoader::Panel));
+    //lblPreviousQuestion->setFont(m_quiz->fontQuestion());
+    picPrevious->setPixmap(QPixmap(":/kwordquiz/pics/ox32-action-question.png"));
 
-    lblYourAnswerHeader->setText(i18n("Your Answer"));
+    lblYourAnswerHeader->setText(tr("Your Answer"));
 
     m_quiz->toNext();
     if (!m_quiz->atEnd())
@@ -175,18 +193,27 @@ void QAView::slotCheck()
     else
     {
       m_quiz->finish();
-      m_actionCollection->action("quiz_check")->setEnabled(false);
-      m_actionCollection->action("qa_hint")->setEnabled(false);
-      m_actionCollection->action("quiz_repeat_errors")->setEnabled(m_quiz->hasErrors());
-      m_actionCollection->action("quiz_export_errors")->setEnabled(m_quiz->hasErrors());
-      m_actionCollection->action("qa_mark_last_correct")->setEnabled(false);
+      //qtport m_actionCollection->action("qa_mark_last_correct")->setEnabled(false);
+      
+      foreach(QAction * a, actions()) {
+        if (a->objectName() == "quizCheck")
+          a->setEnabled(false);
+        if (a->objectName() == "qaHint")
+          a->setEnabled(false);
+        if (a->objectName() == "quizRepeatErrors")
+          a->setEnabled(m_quiz->hasErrors());
+        if (a->objectName() == "quizExportErrors")
+          a->setEnabled(m_quiz->hasErrors());
+        if (a->objectName() == "quizPlayAudio")
+           a->setEnabled(false);
+      }
 
-      lblQuestionLanguage->setText(i18n("Summary"));
+      lblQuestionLanguage->setText(tr("Summary"));
       lblQuestion->clear();
       lblAnswerLanguage->clear();
       lblAnswerBlank->hide();
       txtAnswer->hide();
-      picQuestion->setPixmap(KIconLoader::global()->loadIcon("kwordquiz", KIconLoader::Panel));
+      picQuestion->setPixmap(QPixmap(":/kwordquiz/icons/hi32-app-kwordquiz.png"));
       picAnswer->clear();
     }
   }
@@ -222,7 +249,7 @@ void QAView::slotHint()
 }
 
 /*!
-    \fn QAView::showQuestion(int i)
+    \fn QAView::showQuestion()
  */
 void QAView::showQuestion()
 {
@@ -230,7 +257,7 @@ void QAView::showQuestion()
   lblQuestion->setText(m_quiz ->question());
   //audioPlayQuestion();
 
-  picQuestion->setPixmap(KIconLoader::global()->loadIcon(m_quiz->quizIcon(KWQQuizModel::IconLeftCol), KIconLoader::Panel));
+  picQuestion->setPixmap(QPixmap(QString(":/kwordquiz/pics/ox32-action-%1.png").arg(m_quiz->quizIcon(KWQQuizModel::IconLeftCol))));
 
   lblAnswerLanguage->setText(m_quiz ->langAnswer());
 
@@ -244,14 +271,16 @@ void QAView::showQuestion()
 
   txtAnswer->setText("");
 
-  picAnswer->setPixmap(KIconLoader::global()->loadIcon(m_quiz->quizIcon(KWQQuizModel::IconRightCol), KIconLoader::Panel));
+  picAnswer->setPixmap(QPixmap(QString(":/kwordquiz/pics/ox32-action-%1.png").arg(m_quiz->quizIcon(KWQQuizModel::IconRightCol))));
 
   QString layout = m_quiz->kbAnswer();
+#ifdef Q_WS_X11
   if (!layout.isEmpty()) {
     QDBusInterface kxkb("org.kde.keyboard", "/Layouts", "org.kde.KeyboardLayouts");
     if (kxkb.isValid())
       kxkb.call("setLayout", layout);
   }
+#endif
 }
 
 void QAView::slotApplySettings( )
@@ -288,7 +317,10 @@ void QAView::slotMarkLastCorrect( )
 {
   m_quiz->errorList().removeLast();
   score->swapCount();
-  m_actionCollection->action("qa_mark_last_correct")->setEnabled(false);
+  foreach(QAction * a, actions()) {
+    if (a->objectName() == "qaMarkLastCorrect")
+       a->setEnabled(false);
+  }
 }
 
-#include "qaview.moc"
+//#include "qaview.moc"

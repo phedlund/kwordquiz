@@ -24,7 +24,7 @@
 
 #include "kwqquizmodel.h"
 
-KWQQuizView::KWQQuizView(QWidget* parent, KActionCollection* actionCollection) :  QWidget(parent), m_actionCollection(actionCollection)
+KWQQuizView::KWQQuizView(QWidget* parent/*, KActionCollection* actionCollection*/) :  QWidget(parent)/*, m_actionCollection(actionCollection)*/
 {
   m_player = 0;
   m_quiz = 0;
@@ -50,7 +50,7 @@ void KWQQuizView::slotRepeat()
 void KWQQuizView::slotAudioPlay()
 {
     // repeat playing last file
-    audioPlayFile(KUrl(), false);
+    audioPlayFile(QUrl(), false);
 }
 
 void KWQQuizView::audioPlayAnswer()
@@ -63,25 +63,33 @@ void KWQQuizView::audioPlayQuestion()
     audioPlayFile(m_quiz->soundQuestion(), true);
 }
 
-void KWQQuizView::audioPlayFile(const KUrl &soundUrl, bool overwrite)
+void KWQQuizView::audioPlayFile(const QUrl &soundUrl, bool overwrite)
 {
-    static KUrl lastUrl;
+    static QUrl lastUrl;
 
-    KUrl *url = const_cast<KUrl *>(&soundUrl);
+    QUrl *url = const_cast<QUrl *>(&soundUrl);
     if (overwrite)
        lastUrl = *url;
 
     if (url->isEmpty()) {
         if (lastUrl.isEmpty()) {
-            m_actionCollection->action("quiz_audio_play")->setEnabled(false);
+            //qtport m_actionCollection->action("quiz_audio_play")->setEnabled(false);
+            foreach(QAction * a, actions()) {
+              if (a->objectName() == "quizPlayAudio")
+                 a->setEnabled(false);
+            }
             return;
         }
         url = &lastUrl;
     }
     lastUrl = *url;
-    m_actionCollection->action("quiz_audio_play")->setEnabled(true);
+    //qtport m_actionCollection->action("quiz_audio_play")->setEnabled(true);
+    foreach(QAction * a, actions()) {
+      if (a->objectName() == "quizPlayAudio")
+         a->setEnabled(true);
+    }
 
-    kDebug() << "Attempting to play sound: " << *url;
+    //kDebug() << "Attempting to play sound: " << *url;
 
     if (!m_player) {
         m_player = new Phonon::MediaObject(this);
@@ -94,4 +102,4 @@ void KWQQuizView::audioPlayFile(const KUrl &soundUrl, bool overwrite)
     m_player->play();
 }
 
-#include "kwqquizview.moc"
+//#include "kwqquizview.moc"
