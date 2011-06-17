@@ -121,7 +121,7 @@ void MultipleView::slotCheck()
 
     if (fIsCorrect)
     {
-      picYourAnswer->setPixmap(QPixmap(":/kwordquiz/pics/ox32-action-answer-correct.png"));
+      picYourAnswer->setPixmap(QPixmap(":/kwordquiz/src/pics/ox32-action-answer-correct.png"));
       lblCorrectHeader->clear();
       picCorrectAnswer->clear();
       lblCorrect->clear();
@@ -133,9 +133,9 @@ void MultipleView::slotCheck()
     }
     else
     {
-      picYourAnswer->setPixmap(QPixmap(":/kwordquiz/pics/ox32-action-error.png"));
+      picYourAnswer->setPixmap(QPixmap(":/kwordquiz/src/pics/ox32-action-error.png"));
       lblCorrect->setText(m_quiz->answer());
-      picCorrectAnswer->setPixmap(QPixmap(":/kwordquiz/pics/ox32-action-answer-correct.png"));
+      picCorrectAnswer->setPixmap(QPixmap(":/kwordquiz/src/pics/ox32-action-answer-correct.png"));
       lblCorrectHeader->setText(tr("Correct Answer"));
       score->countIncrement(KWQScoreWidget::cdError);
       //qtport KNotification::event("QuizError", i18n("Your answer was incorrect."));
@@ -146,7 +146,7 @@ void MultipleView::slotCheck()
 
     lblPreviousQuestionHeader->setText(tr("Previous Question"));
     lblPreviousQuestion->setText(m_quiz->question());
-    picPrevious->setPixmap(QPixmap(":/kwordquiz/pics/ox32-action-question.png"));
+    picPrevious->setPixmap(QPixmap(":/kwordquiz/src/pics/ox32-action-question.png"));
 
     lblYourAnswerHeader->setText(tr("Your Answer"));
     lblYourAnswer->setText(m_quiz->yourAnswer(ans));
@@ -182,7 +182,7 @@ void MultipleView::slotCheck()
       opt1->hide();
       opt2->hide();
       opt3->hide();
-      picQuestion->setPixmap(QPixmap(":/kwordquiz/icons/hi32-app-kwordquiz.png"));
+      picQuestion->setPixmap(QPixmap(":/kwordquiz/src/icons/hi32-app-kwordquiz.png"));
       picAnswer->clear();
     }
   }
@@ -208,7 +208,7 @@ void MultipleView::showQuestion()
   lblQuestionLanguage->setText(m_quiz->langQuestion());
   lblQuestion->setText(m_quiz->question());
 
-  picQuestion->setPixmap(QPixmap(QString(":/kwordquiz/pics/ox32-action-%1.png").arg(m_quiz->quizIcon(KWQQuizModel::IconLeftCol))));
+  picQuestion->setPixmap(QPixmap(QString(":/kwordquiz/src/pics/ox32-action-%1.png").arg(m_quiz->quizIcon(KWQQuizModel::IconLeftCol))));
 
   lblAnswerLanguage->setText(m_quiz->langAnswer());
 
@@ -230,7 +230,7 @@ void MultipleView::showQuestion()
   opt3->setChecked(false);
   m_choicesButtons->setExclusive(true);
   setFocus();
-  picAnswer->setPixmap(QPixmap(QString(":/kwordquiz/pics/ox32-action-%1.png").arg(m_quiz->quizIcon(KWQQuizModel::IconRightCol))));
+  picAnswer->setPixmap(QPixmap(QString(":/kwordquiz/src/pics/ox32-action-%1.png").arg(m_quiz->quizIcon(KWQQuizModel::IconRightCol))));
 }
 
 void MultipleView::slotApplySettings()
