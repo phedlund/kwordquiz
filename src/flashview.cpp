@@ -25,7 +25,7 @@
 
 //#include <KIconLoader>
 //#include <KLocale>
-#include <Phonon/MediaObject>
+#include "wqnotification.h"
 
 #include "kwqquizmodel.h"
 #include "kwqscorewidget.h"
@@ -73,18 +73,12 @@ void FlashView::keepDiscardCard(bool keep)
 {
   if (!keep) {
     score->countIncrement(KWQScoreWidget::cdCorrect);
-    //qtport KNotification::event("QuizCorrect", i18n("Your answer was correct!"));
-    Phonon::MediaObject *notification = Phonon::createPlayer(Phonon::NotificationCategory,
-      Phonon::MediaSource(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("scrbar.wav")));
-    notification->play();
+    WQNotification::event("QuizCorrect", tr("Your answer was correct!"));
   }
   else {
     m_quiz->checkAnswer("");
     score->countIncrement(KWQScoreWidget::cdError);
-    //qtport KNotification::event("QuizError", i18n("Your answer was incorrect."));
-    Phonon::MediaObject *notification = Phonon::createPlayer(Phonon::NotificationCategory,
-      Phonon::MediaSource(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("cancel.wav")));
-    notification->play();
+    WQNotification::event("QuizError", tr("Your answer was incorrect."));
   }
 
   m_showFirst = true;

@@ -39,7 +39,7 @@
 
 //#include <KLocale>
 //#include <KGlobalSettings>
-#include <Phonon/MediaObject>
+#include "wqnotification.h"
 //#include <KDebug>
 //#include <kdeprintdialog.h>
 //#include <KPrintPreview>
@@ -664,10 +664,7 @@ void KWQTableView::commitData(QWidget * editor)
   if (!newText.isEmpty()) {
     if (Prefs::enableBlanks())
         if (!m_model->sourceModel()->checkBlanksSyntax(newText) /*checkForBlank(newText, true)*/) {
-        //KNotification::event("SyntaxError", i18n("There is an error with the Fill-in-the-blank brackets"));
-        Phonon::MediaObject *notification = Phonon::createPlayer(Phonon::NotificationCategory,
-                    Phonon::MediaSource(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("alert.wav")));
-        notification->play();
+        WQNotification::event("SyntaxError", tr("There is an error with the Fill-in-the-blank brackets"));
     }
   }
   QTableView::commitData(editor);

@@ -25,7 +25,7 @@
 
 //#include <KIconLoader>
 //#include <KLocale>
-#include <Phonon/MediaObject>
+#include "wqnotification.h"
 //#include <KActionCollection>
 
 #include "kwqquizmodel.h"
@@ -126,10 +126,7 @@ void MultipleView::slotCheck()
       picCorrectAnswer->clear();
       lblCorrect->clear();
       score->countIncrement(KWQScoreWidget::cdCorrect);
-      //qtport KNotification::event("QuizCorrect", i18n("Your answer was correct!"));
-      Phonon::MediaObject *notification = Phonon::createPlayer(Phonon::NotificationCategory,
-        Phonon::MediaSource(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("scrbar.wav")));
-      notification->play();
+      WQNotification::event("QuizCorrect", tr("Your answer was correct!"));
     }
     else
     {
@@ -138,10 +135,7 @@ void MultipleView::slotCheck()
       picCorrectAnswer->setPixmap(QPixmap(":/kwordquiz/src/pics/ox32-action-answer-correct.png"));
       lblCorrectHeader->setText(tr("Correct Answer"));
       score->countIncrement(KWQScoreWidget::cdError);
-      //qtport KNotification::event("QuizError", i18n("Your answer was incorrect."));
-      Phonon::MediaObject *notification = Phonon::createPlayer(Phonon::NotificationCategory,
-        Phonon::MediaSource(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("cancel.wav")));
-      notification->play();
+      WQNotification::event("QuizError", tr("Your answer was incorrect."));
     }
 
     lblPreviousQuestionHeader->setText(tr("Previous Question"));
