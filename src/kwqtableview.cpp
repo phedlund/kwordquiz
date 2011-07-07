@@ -726,9 +726,12 @@ void KWQTableView::slotHeaderClicked(int column)
 void KWQTableView::doVocabImage()
 {
   QString currentUrl = model()->data(currentIndex(), KWQTableModel::ImageRole).toString();
+  if (currentUrl.isEmpty())
+    currentUrl = Prefs::lastImageDir();
 
   QString imageUrl = QFileDialog::getOpenFileName(this, tr("Select Image"), currentUrl);
   if (!imageUrl.isEmpty()) {
+    Prefs::setLastImageDir(QFileInfo(imageUrl).path());
     KWQCommandImage *kwqc = new KWQCommandImage(this, imageUrl);
     m_undoStack->push(kwqc);
   }
@@ -738,9 +741,12 @@ void KWQTableView::doVocabImage()
 void KWQTableView::doVocabSound()
 {
   QString currentUrl = model()->data(currentIndex(), KWQTableModel::SoundRole).toString();
+  if (currentUrl.isEmpty())
+    currentUrl = Prefs::lastSoundDir();
 
   QString soundUrl  = QFileDialog::getOpenFileName(this, tr("Select Sound"), currentUrl);
   if (!soundUrl.isEmpty()) {
+    Prefs::setLastSoundDir(QFileInfo(soundUrl).path());
     KWQCommandSound *kwqc = new KWQCommandSound(this, soundUrl);
     m_undoStack->push(kwqc);
   }
