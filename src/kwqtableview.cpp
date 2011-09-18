@@ -32,7 +32,9 @@
 #include <QtGui/QTextLayout>
 #include <QtGui/QAbstractTextDocumentLayout>
 #include <QHeaderView>
+#ifdef Q_WS_X11
 #include <QtDBus/QDBusInterface>
+#endif
 #include <QtCore/QTextStream>
 #include <QtGui/QPrintPreviewDialog>
 #include <QtCore/QDir>

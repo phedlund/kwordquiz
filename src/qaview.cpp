@@ -20,7 +20,9 @@
 
 #include "qaview.h"
 
+#ifdef Q_WS_X11
 #include <QtDBus/QDBusInterface>
+#endif
 #include <QtCore/QDir>
 
 //#include <KIconLoader>
