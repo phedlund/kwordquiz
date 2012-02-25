@@ -33,6 +33,7 @@
 #include "prefs.h"
 #include "kwqquizmodel.h"
 #include "kwqscorewidget.h"
+#include "wqmackeyboard.h"
 
 QString highlightError(const QString & c, const QString & e)
 {
@@ -277,6 +278,8 @@ void QAView::showQuestion()
       kxkb.call("setLayout", layout);
   }
 #endif
+    WQMacKeyboard::selectLayout(layout);
+
 }
 
 void QAView::slotApplySettings( )

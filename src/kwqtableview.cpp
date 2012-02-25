@@ -53,6 +53,7 @@
 #include "prefs.h"
 #include "kwqcommands.h"
 #include "wqcleardialog.h"
+#include "wqmackeyboard.h"
 
 //krazy:excludeall=qclasses
 
@@ -775,6 +776,8 @@ void KWQTableView::updateKeyboardLayout()
             kxkb.call("setLayout", layout);
     }
 #endif
+    WQMacKeyboard::selectLayout(layout);
+
 }
 
 bool KWQTableView::selectionHasMoreThanText()
