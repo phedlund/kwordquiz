@@ -144,19 +144,19 @@ void KWQScoreWidget::update()
   s = answerText();
   lblScoreAnswered->setText(s);
   if (!s.isEmpty())
-    picAnswered->setPixmap(QPixmap(":/kwordquiz/src/pics/ox32-action-question.png"));
+    picAnswered->setPixmap(QPixmap(":/kwordquiz/src/pics/hi32-action-question.png"));
 
   s = correctText();
   lblScoreCorrect->setText(s);
   if (!s.isEmpty())
-    picCorrect->setPixmap(QPixmap(":/kwordquiz/src/pics/ox32-action-answer-correct.png"));
+    picCorrect->setPixmap(QPixmap(":/kwordquiz/src/pics/hi32-action-answer-correct.png"));
 
   s = errorText();
   lblScoreError->setText(s);
   if (s.isEmpty())
     picError->setPixmap(0);
   else
-    picError->setPixmap(QPixmap(":/kwordquiz/src/pics/ox32-action-error.png"));
+    picError->setPixmap(QPixmap(":/kwordquiz/src/pics/hi32-action-error.png"));
 }
 
 void KWQScoreWidget::swapCount()

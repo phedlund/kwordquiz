@@ -147,7 +147,7 @@ void QAView::slotCheck()
 
     if (fIsCorrect)
     {
-      picYourAnswer->setPixmap(QPixmap(":/kwordquiz/src/pics/ox32-action-answer-correct.png"));
+      picYourAnswer->setPixmap(QPixmap(":/kwordquiz/src/pics/hi32-action-answer-correct.png"));
       lblYourAnswer->setText(m_quiz->yourAnswer(txtAnswer->text()));
       lblCorrectHeader->clear();
       picCorrectAnswer->clear();
@@ -161,10 +161,10 @@ void QAView::slotCheck()
     }
     else
     {
-      picYourAnswer->setPixmap(QPixmap(":/kwordquiz/src/pics/ox32-action-error.png"));
+      picYourAnswer->setPixmap(QPixmap(":/kwordquiz/src/pics/hi32-action-error.png"));
       lblYourAnswer->setText(highlightError(m_quiz->answer(), m_quiz->yourAnswer(txtAnswer->text())));
       lblCorrect->setText(m_quiz->answer());
-      picCorrectAnswer->setPixmap(QPixmap(":/kwordquiz/src/pics/ox32-action-answer-correct.png"));
+      picCorrectAnswer->setPixmap(QPixmap(":/kwordquiz/src/pics/hi32-action-answer-correct.png"));
       lblCorrectHeader->setText(tr("Correct Answer"));
       score->countIncrement(KWQScoreWidget::cdError);
       WQNotification::event("QuizError", tr("Your answer was incorrect."));
@@ -179,7 +179,7 @@ void QAView::slotCheck()
 
     lblPreviousQuestion->setText(m_quiz->question());
     //lblPreviousQuestion->setFont(m_quiz->fontQuestion());
-    picPrevious->setPixmap(QPixmap(":/kwordquiz/src/pics/ox32-action-question.png"));
+    picPrevious->setPixmap(QPixmap(":/kwordquiz/src/pics/hi32-action-question.png"));
 
     lblYourAnswerHeader->setText(tr("Your Answer"));
 
@@ -255,7 +255,7 @@ void QAView::showQuestion()
   lblQuestion->setText(m_quiz ->question());
   //audioPlayQuestion();
 
-  picQuestion->setPixmap(QPixmap(QString(":/kwordquiz/src/pics/ox32-action-%1.png").arg(m_quiz->quizIcon(KWQQuizModel::IconLeftCol))));
+  picQuestion->setPixmap(QPixmap(QString(":/kwordquiz/src/pics/hi32-action-%1.png").arg(m_quiz->quizIcon(KWQQuizModel::IconLeftCol))));
 
   lblAnswerLanguage->setText(m_quiz ->langAnswer());
 
@@ -269,7 +269,7 @@ void QAView::showQuestion()
 
   txtAnswer->setText("");
 
-  picAnswer->setPixmap(QPixmap(QString(":/kwordquiz/src/pics/ox32-action-%1.png").arg(m_quiz->quizIcon(KWQQuizModel::IconRightCol))));
+  picAnswer->setPixmap(QPixmap(QString(":/kwordquiz/src/pics/hi32-action-%1.png").arg(m_quiz->quizIcon(KWQQuizModel::IconRightCol))));
 
   QString layout = m_quiz->kbAnswer();
 #ifdef Q_WS_X11
