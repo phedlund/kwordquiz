@@ -33,8 +33,7 @@
 #include "prefs.h"
 #include "kwqquizmodel.h"
 #include "kwqscorewidget.h"
-#include "wqmackeyboard.h"
-#include "wqwinkeyboard.h"
+#include "kwqkeyboard.h"
 
 QString highlightError(const QString & c, const QString & e)
 {
@@ -272,19 +271,14 @@ void QAView::showQuestion()
   picAnswer->setPixmap(QPixmap(QString(":/kwordquiz/src/pics/hi32-action-%1.png").arg(m_quiz->quizIcon(KWQQuizModel::IconRightCol))));
 
   QString layout = m_quiz->kbAnswer();
-#ifdef Q_WS_X11
   if (!layout.isEmpty()) {
+    KWQKeyboard::selectLayout(layout);
+    /*
     QDBusInterface kxkb("org.kde.keyboard", "/Layouts", "org.kde.KeyboardLayouts");
     if (kxkb.isValid())
       kxkb.call("setLayout", layout);
+    */
   }
-#endif
-#ifdef Q_WS_MAC
-  WQMacKeyboard::selectLayout(layout);
-#endif
-#ifdef Q_WS_WIN
-  WQWinKeyboard::selectLayout(layout);
-#endif
 }
 
 void QAView::slotApplySettings( )

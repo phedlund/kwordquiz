@@ -53,8 +53,7 @@
 #include "prefs.h"
 #include "kwqcommands.h"
 #include "wqcleardialog.h"
-#include "wqmackeyboard.h"
-#include "wqwinkeyboard.h"
+#include "kwqkeyboard.h"
 
 //krazy:excludeall=qclasses
 
@@ -770,19 +769,12 @@ void KWQTableView::updateKeyboardLayout()
     QString layout;
     layout.clear();
     layout = model()->headerData(currentIndex().column(), Qt::Horizontal, KWQTableModel::KeyboardLayoutRole).toString();
-#ifdef Q_WS_X11
-    if (!layout.isEmpty()) {
+    KWQKeyboard::selectLayout(layout);
+    /*if (!layout.isEmpty()) {
         QDBusInterface kxkb("org.kde.keyboard", "/Layouts", "org.kde.KeyboardLayouts");
         if (kxkb.isValid())
             kxkb.call("setLayout", layout);
-    }
-#endif
-#ifdef Q_WS_MAC
-  WQMacKeyboard::selectLayout(layout);
-#endif
-#ifdef Q_WS_WIN
-  WQWinKeyboard::selectLayout(layout);
-#endif
+    }*/
 }
 
 bool KWQTableView::selectionHasMoreThanText()
