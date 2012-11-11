@@ -37,6 +37,10 @@ FlashView::FlashView(QWidget *parent/*, KActionCollection *actionCollection*/) :
   m_timer = new QTimer(this);
   connect(m_timer, SIGNAL(timeout()), this, SLOT(slotTimer()));
   connect(flashcard, SIGNAL(cardClicked()), this, SLOT(slotCheck()));
+
+  m_notificationPlayer = new Phonon::MediaObject(this);
+  Phonon::AudioOutput *audioOutput = new Phonon::AudioOutput(Phonon::NotificationCategory, this);
+  Phonon::createPath(m_notificationPlayer, audioOutput);
 }
 
 void FlashView::init()
@@ -73,12 +77,14 @@ void FlashView::keepDiscardCard(bool keep)
 {
   if (!keep) {
     score->countIncrement(KWQScoreWidget::cdCorrect);
-    WQNotification::event("QuizCorrect", tr("Your answer was correct!"));
+    m_notificationPlayer->setCurrentSource(WQNotification::source("QuizCorrect", tr("Your answer was correct!")));
+    m_notificationPlayer->play();
   }
   else {
     m_quiz->checkAnswer("");
     score->countIncrement(KWQScoreWidget::cdError);
-    WQNotification::event("QuizError", tr("Your answer was incorrect."));
+    m_notificationPlayer->setCurrentSource(WQNotification::source("QuizError", tr("Your answer was incorrect.")));
+    m_notificationPlayer->play();
   }
 
   m_showFirst = true;

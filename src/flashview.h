@@ -25,6 +25,7 @@
 
 //#include <KActionCollection>
 #include "kwqquizview.h"
+#include <Phonon/MediaObject>
 
 class KWQQuizModel;
 
@@ -54,6 +55,7 @@ private:
     bool m_soundFeedBack;
     bool m_flipAuto;
     bool m_keepDiscard;
+    Phonon::MediaObject *m_notificationPlayer;
 
     void keepDiscardCard(bool keep);
 };

@@ -52,6 +52,7 @@ public slots:
 
 private:
     bool m_hintUsed;
+    Phonon::MediaObject *m_notificationPlayer;
 
     void showQuestion();
 };

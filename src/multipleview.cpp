@@ -56,6 +56,10 @@ MultipleView::MultipleView(QWidget *parent/*, KActionCollection *actionCollectio
       a->setData(3);
     }
   }
+
+  m_notificationPlayer = new Phonon::MediaObject(this);
+  Phonon::AudioOutput *audioOutput = new Phonon::AudioOutput(Phonon::NotificationCategory, this);
+  Phonon::createPath(m_notificationPlayer, audioOutput);
 }
 
 void MultipleView::init()
@@ -126,7 +130,8 @@ void MultipleView::slotCheck()
       picCorrectAnswer->clear();
       lblCorrect->clear();
       score->countIncrement(KWQScoreWidget::cdCorrect);
-      WQNotification::event("QuizCorrect", tr("Your answer was correct!"));
+      m_notificationPlayer->setCurrentSource(WQNotification::source("QuizCorrect", tr("Your answer was correct!")));
+      m_notificationPlayer->play();
     }
     else
     {
@@ -135,7 +140,8 @@ void MultipleView::slotCheck()
       picCorrectAnswer->setPixmap(QPixmap(":/kwordquiz/src/pics/hi32-action-answer-correct.png"));
       lblCorrectHeader->setText(tr("Correct Answer"));
       score->countIncrement(KWQScoreWidget::cdError);
-      WQNotification::event("QuizError", tr("Your answer was incorrect."));
+      m_notificationPlayer->setCurrentSource(WQNotification::source("QuizError", tr("Your answer was incorrect.")));
+      m_notificationPlayer->play();
     }
 
     lblPreviousQuestionHeader->setText(tr("Previous Question"));

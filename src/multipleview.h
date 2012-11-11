@@ -25,6 +25,7 @@
 
 //#include <KActionCollection>
 #include "kwqquizview.h"
+#include <Phonon/MediaObject>
 
 class QActionGroup;
 class QButtonGroup;
@@ -50,6 +51,7 @@ private:
     QActionGroup *m_choicesActions;
     QButtonGroup *m_choicesButtons;
     QStringList m_choices;
+    Phonon::MediaObject *m_notificationPlayer;
 
     void showQuestion();
 };

@@ -42,6 +42,8 @@
 //#include <KLocale>
 //#include <KGlobalSettings>
 #include "wqnotification.h"
+#include <Phonon/MediaObject>
+#include <Phonon/AudioOutput>
 //#include <KDebug>
 //#include <kdeprintdialog.h>
 //#include <KPrintPreview>
@@ -665,9 +667,15 @@ void KWQTableView::commitData(QWidget * editor)
     m_undoStack->push(kwqc);
   }
   if (!newText.isEmpty()) {
-    if (Prefs::enableBlanks())
+    if (Prefs::enableBlanks()) {
         if (!m_model->sourceModel()->checkBlanksSyntax(newText) /*checkForBlank(newText, true)*/) {
-        WQNotification::event("SyntaxError", tr("There is an error with the Fill-in-the-blank brackets"));
+            Phonon::MediaObject *notificationPlayer = new Phonon::MediaObject(this);
+            Phonon::AudioOutput *audioOutput = new Phonon::AudioOutput(Phonon::NotificationCategory, this);
+            Phonon::createPath(notificationPlayer, audioOutput);
+            notificationPlayer->setCurrentSource(WQNotification::source("SyntaxError", tr("There is an error with the Fill-in-the-blank brackets")));
+            notificationPlayer->play();
+
+        }
     }
   }
   QTableView::commitData(editor);

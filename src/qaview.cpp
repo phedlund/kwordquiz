@@ -75,6 +75,10 @@ QAView::QAView(QWidget *parent/*, KActionCollection * actionCollection*/) : KWQQ
   setupUi(this);
 
   connect(txtAnswer, SIGNAL(returnPressed()), this, SLOT(slotCheck()));
+
+  m_notificationPlayer = new Phonon::MediaObject(this);
+  Phonon::AudioOutput *audioOutput = new Phonon::AudioOutput(Phonon::NotificationCategory, this);
+  Phonon::createPath(m_notificationPlayer, audioOutput);
 }
 
 void QAView::init()
@@ -152,7 +156,8 @@ void QAView::slotCheck()
       picCorrectAnswer->clear();
       lblCorrect->clear();
       score->countIncrement(KWQScoreWidget::cdCorrect);
-      WQNotification::event("QuizCorrect", tr("Your answer was correct!"));
+      m_notificationPlayer->setCurrentSource(WQNotification::source("QuizCorrect", tr("Your answer was correct!")));
+      m_notificationPlayer->play();
       foreach(QAction * a, actions()) {
         if (a->objectName() == "qaMarkLastCorrect")
            a->setEnabled(false);
@@ -166,7 +171,8 @@ void QAView::slotCheck()
       picCorrectAnswer->setPixmap(QPixmap(":/kwordquiz/src/pics/hi32-action-answer-correct.png"));
       lblCorrectHeader->setText(tr("Correct Answer"));
       score->countIncrement(KWQScoreWidget::cdError);
-      WQNotification::event("QuizError", tr("Your answer was incorrect."));
+      m_notificationPlayer->setCurrentSource(WQNotification::source("QuizError", tr("Your answer was incorrect.")));
+      m_notificationPlayer->play();
       foreach(QAction * a, actions()) {
         if (a->objectName() == "qaMarkLastCorrect")
            a->setEnabled(true);
